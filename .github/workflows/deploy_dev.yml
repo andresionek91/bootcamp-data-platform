@@ -3,7 +3,7 @@ name: Deploy Data Platform to Production
 on:
   push:
     branches:
-      - master
+      - dev
 
 jobs:
 
