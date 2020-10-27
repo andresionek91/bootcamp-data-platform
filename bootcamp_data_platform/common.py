@@ -52,6 +52,7 @@ class Common(core.Stack):
             vpc=self.custom_vpc,
             instance_identifier=f'rds-{self.env}-orders-db',
             port=5432,
+            vpc_placement=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             subnet_group=rds.SubnetGroup(
                 self,
                 f'rds-{self.env}-replication-subnet',
