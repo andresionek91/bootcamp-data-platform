@@ -45,7 +45,7 @@ class DataLakeDatabase(glue.Database):
 
 class GlueDataLakeRole(iam.Role):
 
-    def __init__(self, scope: core.Construct, environment: Environment, buckets: dict, **kwargs) -> None:
+    def __init__(self, scope: core.Construct, environment: Environment, buckets: list, **kwargs) -> None:
         self.environment = environment.value
         super().__init__(
             scope,
@@ -53,7 +53,7 @@ class GlueDataLakeRole(iam.Role):
             assumed_by=iam.ServicePrincipal('glue.amazonaws.com'),
             description='Allows using Glue on Data Lake',
         )
-        self.buckets_arns = [bucket.bucket_arn for layer, bucket in buckets.items()]
+        self.buckets_arns = [bucket.bucket_arn for bucket in buckets]
         self.add_policy()
         self.add_instance_profile()
 
@@ -173,18 +173,16 @@ class AthenaWorkgroup(athena.CfnWorkGroup):
 class DataLake(core.Stack):
 
     def __init__(self, scope: core.Construct, environment: Environment, **kwargs) -> None:
-        super().__init__(scope, id='data-lake', **kwargs)
-        self.buckets = {}
-        self.databases = {}
         self.env = environment
+        super().__init__(scope, id=f'{self.env.value}-data-lake', **kwargs)
 
-        self.data_lake_raw()
-        self.data_lake_processed()
-        self.data_lake_curated()
-        self.data_lake_role()
-        self.athena()
+        self.data_lake_raw_bucket, self.data_lake_raw_database = self.get_data_lake_raw()
+        self.data_lake_processed_bucket, self.data_lake_processed_database =self.get_data_lake_processed()
+        self.data_lake_curated_bucket, self.data_lake_curated_database = self.get_data_lake_curated()
+        self.data_lake_role = self.get_data_lake_role()
+        self.athena_bucket, self.athena_workgroup = self.get_athena()
 
-    def data_lake_raw(self):
+    def get_data_lake_raw(self):
         bucket = DataLakeBucket(
             self,
             environment=self.env,
@@ -205,12 +203,9 @@ class DataLake(core.Stack):
 
         database = DataLakeDatabase(self, bucket=bucket)
 
-        self.buckets[Layer.RAW] = bucket
-        self.databases[Layer.RAW] = database
-
         return bucket, database
 
-    def data_lake_processed(self):
+    def get_data_lake_processed(self):
         bucket = DataLakeBucket(
             self,
             environment=self.env,
@@ -219,12 +214,9 @@ class DataLake(core.Stack):
 
         database = DataLakeDatabase(self, bucket=bucket)
 
-        self.buckets[Layer.PROCESSED] = bucket
-        self.databases[Layer.PROCESSED] = database
-
         return bucket, database
 
-    def data_lake_curated(self):
+    def get_data_lake_curated(self):
         bucket = DataLakeBucket(
             self,
             environment=self.env,
@@ -233,21 +225,22 @@ class DataLake(core.Stack):
 
         database = DataLakeDatabase(self, bucket=bucket)
 
-        self.buckets[Layer.CURATED] = bucket
-        self.databases[Layer.CURATED] = database
-
         return bucket, database
 
-    def data_lake_role(self):
+    def get_data_lake_role(self):
         role = GlueDataLakeRole(
             self,
             environment=self.env,
-            buckets=self.buckets
+            buckets=[
+                self.data_lake_raw_bucket,
+                self.data_lake_processed_bucket,
+                self.data_lake_curated_bucket
+            ]
         )
 
         return role
 
-    def athena(self):
+    def get_athena(self):
         bucket = AthenaBucket(
             self,
             environment=self.env,
