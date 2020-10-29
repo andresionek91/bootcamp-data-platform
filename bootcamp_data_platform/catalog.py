@@ -46,3 +46,4 @@ class Catalog(core.Stack):
                 glue.Column(name='product_name', type=glue.Type(input_string='string', is_primitive=True)),
                 glue.Column(name='value', type=glue.Type(input_string='float', is_primitive=True))
             ]
+        )
