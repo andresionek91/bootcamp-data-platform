@@ -59,7 +59,7 @@ class EMRTransform(core.Stack):
                     instance_type='m4.large',
                     market='ON_DEMAND',
                     name='Master'
-                ),
+                ).,
                 core_instance_group=emr.CfnCluster.InstanceGroupConfigProperty(
                     instance_count=2,
                     instance_type='m4.large',
@@ -67,7 +67,7 @@ class EMRTransform(core.Stack):
                     name='Core'
                 ),
                 termination_protected=True,
-                ec2_subnet_ids=common.custom_vpc.private_subnets
+                ec2_subnet_ids=[subnet.subnet_id for subnet in common.custom_vpc.private_subnets]
             ),
             applications=[
                 emr.CfnCluster.ApplicationProperty(name='Spark')
