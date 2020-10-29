@@ -55,9 +55,10 @@ class Common(core.Stack):
             vpc_placement=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             subnet_group=rds.SubnetGroup(
                 self,
-                f'rds-{self.env}-replication-subnet',
-                description='place RDS on private subnet',
-                vpc=self.custom_vpc
+                f'rds-{self.env}-subnet',
+                description='place RDS on public subnet',
+                vpc=self.custom_vpc,
+                vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC)
             ),
             security_groups=[
                 self.orders_rds_sg
