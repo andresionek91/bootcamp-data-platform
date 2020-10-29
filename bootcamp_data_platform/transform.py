@@ -53,24 +53,22 @@ class EMRTransform(core.Stack):
             self,
             f'{self.env}-emr-cluster',
             name=f'{self.env}-emr-cluster',
-            instances=[
-                emr.CfnCluster.JobFlowInstancesConfigProperty(
-                    master_instance_group=emr.CfnCluster.InstanceGroupConfigProperty(
-                        instance_count=1,
-                        instance_type='m4.large',
-                        market='ON_DEMAND',
-                        name='Master'
-                    ),
-                    core_instance_group=emr.CfnCluster.InstanceGroupConfigProperty(
-                        instance_count=2,
-                        instance_type='m4.large',
-                        market='ON_DEMAND',
-                        name='Core'
-                    ),
-                    termination_protected=True,
-                    ec2_subnet_ids=common.custom_vpc.private_subnets
-                )
-            ],
+            instances=emr.CfnCluster.JobFlowInstancesConfigProperty(
+                master_instance_group=emr.CfnCluster.InstanceGroupConfigProperty(
+                    instance_count=1,
+                    instance_type='m4.large',
+                    market='ON_DEMAND',
+                    name='Master'
+                ),
+                core_instance_group=emr.CfnCluster.InstanceGroupConfigProperty(
+                    instance_count=2,
+                    instance_type='m4.large',
+                    market='ON_DEMAND',
+                    name='Core'
+                ),
+                termination_protected=True,
+                ec2_subnet_ids=common.custom_vpc.private_subnets
+            ),
             applications=[
                 emr.CfnCluster.ApplicationProperty(name='Spark')
             ],
@@ -80,27 +78,3 @@ class EMRTransform(core.Stack):
             release_label='emr-5.30.1',
             visible_to_all_users=True
         )
-
-
-
- #  emrEc2Role:
- #    Type: AWS::IAM::Role
- #    Properties:
- #      AssumeRolePolicyDocument:
- #        Version: 2008-10-17
- #        Statement:
- #          - Sid: ''
- #            Effect: Allow
- #            Principal:
- #              Service: ec2.amazonaws.com
- #            Action: 'sts:AssumeRole'
- #      Path: /
- #      ManagedPolicyArns:
- #        - 'arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role'
- #
- #  emrEc2InstanceProfile:
- #    Type: AWS::IAM::InstanceProfile
- #    Properties:
- #      Path: /
- #      Roles:
- #        - !Ref emrEc2Role
