@@ -45,7 +45,7 @@ class EMRTransform(core.Stack):
             f'{self.env}-emr-instance_profile',
             instance_profile_name=f'{self.env}-emr-instance_profile',
             roles=[
-                self.emr_ec2_role
+                self.emr_ec2_role.role_arn
             ]
         )
 
