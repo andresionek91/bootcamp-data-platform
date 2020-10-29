@@ -8,7 +8,7 @@ from aws_cdk import (
 class GlueCatalog(core.Stack):
 
     def __init__(self, scope: core.Construct, data_lake: DataLake, **kwargs) -> None:
-        self.env = data_lake.environment
+        self.env = data_lake.env.value
         super().__init__(scope, id=f'{self.env}-glue-catalog', **kwargs)
 
         self.atomic_events_crawler = glue.CfnCrawler(
