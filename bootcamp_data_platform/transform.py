@@ -20,6 +20,35 @@ class EMRTransform(core.Stack):
             bucket_name=f's3-belisco-{self.env}-emr-logs-bucket'
         )
 
+        self.emr_role = iam.Role(
+            self,
+            f'{self.env}-emr-cluster-role',
+            assumed_by=iam.ServicePrincipal('elasticmapreduce.amazonaws.com'),
+            description='Role to allow EMR to process data',
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AmazonElasticMapReduceRole')
+            ]
+        )
+
+        self.emr_ec2_role = iam.Role(
+            self,
+            f'{self.env}-emr-ec2-role',
+            assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'),
+            description='Role to allow EMR to process data',
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AmazonElasticMapReduceforEC2Role')
+            ]
+        )
+
+        self.emr_ec2_instance_profile = iam.CfnInstanceProfile(
+            self,
+            f'{self.env}-emr-instance_profile',
+            instance_profile_name=f'{self.env}-emr-instance_profile',
+            roles=[
+                self.emr_ec2_role
+            ]
+        )
+
         self.cluster = emr.CfnCluster(
             self,
             f'{self.env}-emr-cluster',
@@ -46,38 +75,14 @@ class EMRTransform(core.Stack):
                 emr.CfnCluster.ApplicationProperty(name='Spark')
             ],
             log_uri=f's3://{self.logs_bucket.bucket_name}/logs',
-            job_flow_role=,
-            service_role=,
+            job_flow_role=self.emr_ec2_instance_profile.get_att('arn'),
+            service_role=self.emr_role.role_arn,
             release_label='emr-5.30.1',
             visible_to_all_users=True
         )
 
-        self.emr_role = iam.Role(
-            self,
-            f'{self.env}-emr-cluster-role',
-            assumed_by=iam.ServicePrincipal('elasticmapreduce.amazonaws.com'),
-            description='Role to allow EMR to process data',
-            managed_policies=[
-                iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AmazonElasticMapReduceRole')
-            ]
 
-        )
- #
- #  emrRole:
- #    Type: AWS::IAM::Role
- #    Properties:
- #      AssumeRolePolicyDocument:
- #        Version: 2008-10-17
- #        Statement:
- #          - Sid: ''
- #            Effect: Allow
- #            Principal:
- #              Service: elasticmapreduce.amazonaws.com
- #            Action: 'sts:AssumeRole'
- #      Path: /
- #      ManagedPolicyArns:
- #        - 'arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole'
- #
+
  #  emrEc2Role:
  #    Type: AWS::IAM::Role
  #    Properties:
