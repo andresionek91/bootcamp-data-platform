@@ -59,7 +59,7 @@ class EMRTransform(core.Stack):
                     instance_type='m4.large',
                     market='ON_DEMAND',
                     name='Master'
-                ).,
+                ),
                 core_instance_group=emr.CfnCluster.InstanceGroupConfigProperty(
                     instance_count=2,
                     instance_type='m4.large',
