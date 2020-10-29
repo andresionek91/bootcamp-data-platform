@@ -5,11 +5,11 @@ from aws_cdk import (
 )
 
 
-class Catalog(core.Stack):
+class GlueCatalog(core.Stack):
 
     def __init__(self, scope: core.Construct, data_lake: DataLake, **kwargs) -> None:
         self.env = data_lake.environment
-        super().__init__(scope, id=f'{self.env}-catalog', **kwargs)
+        super().__init__(scope, id=f'{self.env}-glue-catalog', **kwargs)
 
         self.atomic_events_crawler = glue.CfnCrawler(
             self,
