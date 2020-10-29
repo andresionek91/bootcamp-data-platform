@@ -1,4 +1,3 @@
-from common import Environment
 from aws_cdk import core
 from app import DataLake
 from aws_cdk import (
@@ -8,8 +7,8 @@ from aws_cdk import (
 
 class Catalog(core.Stack):
 
-    def __init__(self, scope: core.Construct, environment: Environment, data_lake: DataLake, **kwargs) -> None:
-        self.env = environment.value
+    def __init__(self, scope: core.Construct, data_lake: DataLake, **kwargs) -> None:
+        self.env = data_lake.environment
         super().__init__(scope, id=f'{self.env}-catalog', **kwargs)
 
         self.atomic_events_crawler = glue.CfnCrawler(
