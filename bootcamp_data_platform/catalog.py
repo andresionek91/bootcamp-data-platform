@@ -1,5 +1,5 @@
 from aws_cdk import core
-from app import DataLake
+from data_lake import DataLake
 from aws_cdk import (
     aws_glue as glue
 )
