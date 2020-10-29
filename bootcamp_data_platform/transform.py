@@ -73,7 +73,7 @@ class EMRTransform(core.Stack):
                 emr.CfnCluster.ApplicationProperty(name='Spark')
             ],
             log_uri=f's3://{self.logs_bucket.bucket_name}/logs',
-            job_flow_role=self.emr_ec2_instance_profile.get_att('arn'),
+            job_flow_role=self.emr_ec2_instance_profile.get_att('arn').to_string(),
             service_role=self.emr_role.role_arn,
             release_label='emr-5.30.1',
             visible_to_all_users=True
