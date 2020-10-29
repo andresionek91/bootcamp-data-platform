@@ -35,9 +35,9 @@ class GlueCatalog(core.Stack):
             database=data_lake.data_lake_raw_database,
             compressed=True,
             data_format=glue.DataFormat(
-                input_format=glue.InputFormat(glue.InputFormat.TEXT),
-                output_format=glue.OutputFormat(glue.OutputFormat.HIVE_IGNORE_KEY_TEXT),
-                serialization_library=glue.SerializationLibrary(glue.SerializationLibrary.OPEN_CSV)
+                input_format=glue.InputFormat.TEXT,
+                output_format=glue.OutputFormat.HIVE_IGNORE_KEY_TEXT,
+                serialization_library=glue.SerializationLibrary.OPEN_CSV
             ),
             columns=[
                 glue.Column(name='created_at', type=glue.Type(input_string='datetime', is_primitive=True)),
