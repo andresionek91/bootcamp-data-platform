@@ -14,7 +14,6 @@ class Environment(Enum):
 
 
 class Common(core.Stack):
-
     def __init__(self, scope: core.Construct, environment: Environment, **kwargs) -> None:
         self.env = environment.value
         super().__init__(scope, id=f'{self.env}-common', **kwargs)
@@ -43,10 +42,21 @@ class Common(core.Stack):
                 connection=ec2.Port.tcp(5432)
             )
 
+        self.orders_rds_parameter_group = rds.ParameterGroup(
+            self,
+            f'orders-{self.env}-rds-parameter-group',
+            description='Parameter group to allow CDC from RDS using DMS.',
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_12_4),
+            parameters={
+                "rds.logical_replication": "1",
+                "wal_sender_timeout": "0"
+            }
+        )
+
         self.orders_rds = rds.DatabaseInstance(
             self,
             f'orders-{self.env}-rds',
-            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_11_2),
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_12_4),
             database_name='orders',
             instance_type=ec2.InstanceType('t3.micro'),
             vpc=self.custom_vpc,
@@ -60,10 +70,10 @@ class Common(core.Stack):
                 vpc=self.custom_vpc,
                 vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC)
             ),
+            parameter_group=self.orders_rds_parameter_group,
             security_groups=[
                 self.orders_rds_sg
             ],
             removal_policy=core.RemovalPolicy.DESTROY,
             **kwargs
         )
-

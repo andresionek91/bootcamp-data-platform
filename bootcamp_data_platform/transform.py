@@ -17,7 +17,8 @@ class EMRTransform(core.Stack):
         self.logs_bucket = s3.Bucket(
             self,
             f'{self.env}-emr-logs-bucket',
-            bucket_name=f's3-belisco-{self.env}-emr-logs-bucket'
+            bucket_name=f's3-belisco-{self.env}-emr-logs-bucket',
+            removal_policy=core.RemovalPolicy.DESTROY
         )
 
         self.emr_role = iam.Role(
@@ -45,7 +46,7 @@ class EMRTransform(core.Stack):
             f'{self.env}-emr-instance_profile',
             instance_profile_name=f'{self.env}-emr-instance_profile',
             roles=[
-                self.emr_ec2_role.role_arn
+                self.emr_ec2_role.role_name
             ]
         )
 
@@ -67,13 +68,13 @@ class EMRTransform(core.Stack):
                     name='Core'
                 ),
                 termination_protected=True,
-                ec2_subnet_ids=[subnet.subnet_id for subnet in common.custom_vpc.private_subnets]
+                ec2_subnet_id=common.custom_vpc.private_subnets[0].subnet_id
             ),
             applications=[
                 emr.CfnCluster.ApplicationProperty(name='Spark')
             ],
             log_uri=f's3://{self.logs_bucket.bucket_name}/logs',
-            job_flow_role=self.emr_ec2_instance_profile.get_att('arn').to_string(),
+            job_flow_role=self.emr_ec2_instance_profile.get_att('Arn').to_string(),
             service_role=self.emr_role.role_arn,
             release_label='emr-5.30.1',
             visible_to_all_users=True

@@ -16,21 +16,21 @@ class GlueCatalog(core.Stack):
             f'{self.env}-atomic-events-crawler',
             name=f'{self.env}-atomic-events-crawler',
             description='Crawler to detect schema of data sored in data lake raw, atomic events',
-            schedule=glue.CfnCrawler.ScheduleProperty(schedule_expression='cron(* 15 * * ? *)'),
+            schedule=glue.CfnCrawler.ScheduleProperty(schedule_expression='cron(0/15 * * * ? *)'),
             role=data_lake.data_lake_role.role_arn,
             targets=glue.CfnCrawler.TargetsProperty(
                 s3_targets=[
-                    glue.CfnCrawler.S3TargetProperty(path=f's3://{data_lake.data_lake_raw_bucket.bucket_name}/atomic_events')
+                    glue.CfnCrawler.S3TargetProperty(
+                        path=f's3://{data_lake.data_lake_raw_bucket.bucket_name}/atomic_events')
                 ]
             ),
-            database_name=data_lake.data_lake_raw_database.database_name,
+            database_name=data_lake.data_lake_raw_database.database_name
         )
 
         self.orders_table = glue.Table(
             self,
             f'{self.env}-orders-table',
             table_name='orders',
-            s3_prefix='orders',
             description='orders captured from Postgres using DMS CDC',
             database=data_lake.data_lake_raw_database,
             compressed=True,
@@ -39,6 +39,8 @@ class GlueCatalog(core.Stack):
                 output_format=glue.OutputFormat.HIVE_IGNORE_KEY_TEXT,
                 serialization_library=glue.SerializationLibrary.OPEN_CSV
             ),
+            s3_prefix='orders',
+            bucket=data_lake.data_lake_raw_bucket,
             columns=[
                 glue.Column(name='created_at', type=glue.Type(input_string='datetime', is_primitive=True)),
                 glue.Column(name='order_id', type=glue.Type(input_string='integer', is_primitive=True)),

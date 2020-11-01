@@ -107,6 +107,7 @@ class OrdersDMS(dms.CfnReplicationTask):
                 key=f'{common.orders_rds.secret.secret_arn}:SecretString:dbname').to_string(),
             port=5432,
             server_name=common.orders_rds.db_instance_endpoint_address,
+            extra_connection_attributes='captureDDLs=Y'
         )
 
         self.s3_endpoint = dms.CfnEndpoint(
@@ -146,7 +147,7 @@ class OrdersDMS(dms.CfnReplicationTask):
             f'dms-replication-instance-{common.env}',
             allocated_storage=100,
             publicly_accessible=False,
-            engine_version='3.3.2',
+            engine_version='3.3.3',
             replication_instance_class='dms.t2.small',
             replication_instance_identifier=f'dms-{common.env}-replication-instance',
             vpc_security_group_ids=[
@@ -164,7 +165,6 @@ class OrdersDMS(dms.CfnReplicationTask):
             replication_instance_arn=self.instance.ref,
             source_endpoint_arn=self.rds_endpoint.ref,
             target_endpoint_arn=self.s3_endpoint.ref,
-
             table_mappings=json.dumps(
                 {
                     "rules": [

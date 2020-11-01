@@ -1,13 +1,14 @@
 import boto3
 import json
 from fake_web_events import Simulation
-
+import re
 
 client = boto3.client('firehose')
 
 
 def put_record(event):
-    data = (json.dumps(event, separators=(',', ':')) + '\n').encode('utf-8')
+    data = (re.sub("/\n|\r/g", "", json.dumps(event, separators=(',', ':')))).encode('utf-8') + b'\n'
+    print(data)
     response = client.put_record(
         DeliveryStreamName='firehose-production-raw-delivery-stream',
         Record={
