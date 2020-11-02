@@ -35,16 +35,18 @@ class GlueCatalog(core.Stack):
             database=data_lake.data_lake_raw_database,
             compressed=True,
             data_format=glue.DataFormat(
-                input_format=glue.InputFormat.TEXT,
-                output_format=glue.OutputFormat.HIVE_IGNORE_KEY_TEXT,
-                serialization_library=glue.SerializationLibrary.OPEN_CSV
+                input_format=glue.InputFormat.PARQUET,
+                output_format=glue.OutputFormat.PARQUET,
+                serialization_library=glue.SerializationLibrary.PARQUET
             ),
-            s3_prefix='orders',
+            s3_prefix='orders/public/orders',
             bucket=data_lake.data_lake_raw_bucket,
             columns=[
-                glue.Column(name='created_at', type=glue.Type(input_string='datetime', is_primitive=True)),
-                glue.Column(name='order_id', type=glue.Type(input_string='integer', is_primitive=True)),
+                glue.Column(name='op', type=glue.Type(input_string='string', is_primitive=True)),
+                glue.Column(name='extracted_at', type=glue.Type(input_string='string', is_primitive=True)),
+                glue.Column(name='created_at', type=glue.Type(input_string='timestamp', is_primitive=True)),
+                glue.Column(name='order_id', type=glue.Type(input_string='int', is_primitive=True)),
                 glue.Column(name='product_name', type=glue.Type(input_string='string', is_primitive=True)),
-                glue.Column(name='value', type=glue.Type(input_string='float', is_primitive=True))
+                glue.Column(name='value', type=glue.Type(input_string='double', is_primitive=True))
             ]
         )

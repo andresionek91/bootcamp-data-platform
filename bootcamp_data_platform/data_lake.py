@@ -38,7 +38,7 @@ class DataLakeDatabase(glue.Database):
         super().__init__(
             scope,
             name,
-            database_name=name,
+            database_name=name.replace("-", "_"),
             location_uri=f's3://{bucket.bucket_name}'
         )
 

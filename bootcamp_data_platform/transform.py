@@ -21,6 +21,26 @@ class EMRTransform(core.Stack):
             removal_policy=core.RemovalPolicy.DESTROY
         )
 
+        buckets_arns = [
+            data_lake.data_lake_raw_bucket.bucket_arn,
+            data_lake.data_lake_processed_bucket.bucket_arn,
+            data_lake.data_lake_curated_bucket.bucket_arn
+        ]
+
+        self.datalake_emr_policy = iam.Policy(
+            self,
+            id=f'iam-{self.env}-emr-data-lake',
+            policy_name=f'iam-{self.env}-emr-data-lake',
+            statements=[
+                iam.PolicyStatement(
+                    actions=[
+                        's3:*',
+                    ],
+                    resources=buckets_arns + [f'{arn}/*' for arn in buckets_arns]
+                )
+            ]
+        )
+
         self.emr_role = iam.Role(
             self,
             f'{self.env}-emr-cluster-role',
@@ -31,6 +51,8 @@ class EMRTransform(core.Stack):
             ]
         )
 
+        self.emr_role.attach_inline_policy(self.datalake_emr_policy)
+
         self.emr_ec2_role = iam.Role(
             self,
             f'{self.env}-emr-ec2-role',
@@ -40,6 +62,8 @@ class EMRTransform(core.Stack):
                 iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AmazonElasticMapReduceforEC2Role')
             ]
         )
+
+        self.emr_ec2_role.attach_inline_policy(self.datalake_emr_policy)
 
         self.emr_ec2_instance_profile = iam.CfnInstanceProfile(
             self,
@@ -67,7 +91,7 @@ class EMRTransform(core.Stack):
                     market='ON_DEMAND',
                     name='Core'
                 ),
-                termination_protected=True,
+                termination_protected=False,
                 ec2_subnet_id=common.custom_vpc.private_subnets[0].subnet_id
             ),
             applications=[
@@ -77,5 +101,13 @@ class EMRTransform(core.Stack):
             job_flow_role=self.emr_ec2_instance_profile.get_att('Arn').to_string(),
             service_role=self.emr_role.role_arn,
             release_label='emr-5.30.1',
-            visible_to_all_users=True
+            visible_to_all_users=True,
+            configurations=[
+                emr.CfnCluster.ConfigurationProperty(
+                    classification='spark-hive-site',
+                    configuration_properties={
+                        "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
+                    }
+                )
+            ]
         )

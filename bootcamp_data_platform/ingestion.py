@@ -197,7 +197,7 @@ class RawIngestion(core.Stack):
 
         s3_config = firehose.CfnDeliveryStream.ExtendedS3DestinationConfigurationProperty(
             bucket_arn=raw_bucket.bucket_arn,
-            compression_format='ZIP',
+            compression_format='GZIP',
             error_output_prefix='bad_records',
             prefix='atomic_events/year=!{timestamp:yyyy}/'
                    'month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/',
