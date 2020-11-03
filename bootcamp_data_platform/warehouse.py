@@ -61,10 +61,10 @@ class DataWarehouse(core.Stack):
 
         self.redshift_sg = ec2.SecurityGroup(
             self,
-            f'orders-{self.env}-sg',
-            vpc=self.custom_vpc,
+            f'redshift-{self.env}-sg',
+            vpc=common.custom_vpc,
             allow_all_outbound=True,
-            security_group_name=f'orders-{self.env}-sg',
+            security_group_name=f'redshift-{self.env}-sg',
         )
 
         self.redshift_sg.add_ingress_rule(
@@ -98,6 +98,8 @@ class DataWarehouse(core.Stack):
                     data_lake
                 )
             ],
-            security_groups=common.orders_rds_sg,
+            security_groups=[
+                self.redshift_sg
+            ],
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC)
         )

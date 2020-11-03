@@ -34,11 +34,7 @@ class GlueCatalog(core.Stack):
             description='orders captured from Postgres using DMS CDC',
             database=data_lake.data_lake_raw_database,
             compressed=True,
-            data_format=glue.DataFormat(
-                input_format=glue.InputFormat.PARQUET,
-                output_format=glue.OutputFormat.PARQUET,
-                serialization_library=glue.SerializationLibrary.PARQUET
-            ),
+            data_format=glue.DataFormat.PARQUET,
             s3_prefix='orders/public/orders',
             bucket=data_lake.data_lake_raw_bucket,
             columns=[

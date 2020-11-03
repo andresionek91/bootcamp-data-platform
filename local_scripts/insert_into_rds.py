@@ -18,6 +18,7 @@ conn = psycopg2.connect(dsn)
 print('connected')
 conn.set_session(autocommit=True)
 cur = conn.cursor()
+cur.execute('drop table if exists orders;')
 cur.execute('create table if not exists orders('
             'created_at timestamp,'
             'order_id integer,'
