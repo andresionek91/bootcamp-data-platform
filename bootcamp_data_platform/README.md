@@ -7,7 +7,7 @@ CREATE EXTERNAL SCHEMA glue_data_lake_raw
 FROM DATA CATALOG
 DATABASE 'glue_belisco_production_data_lake_raw'
 REGION 'eu-west-1'
-iam_role 'arn:aws:iam::405179727091:role/production-data-warehouse-iamproductionredshiftspe-FHY1X6UIKCGT'
+iam_role 'arn:aws:iam::<AWS-Account>:role/production-data-warehouse-iamproductionredshiftspe-FHY1X6UIKCGT'
 ```
 
 Busque o seu iam_role dentro do cloudformation / production-data-warehouse / Resources / iam role
