@@ -19,7 +19,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where="bootcamp_data_platform"),
 
     install_requires=[
-        "aws-cdk.core==1.70.0",
+        "aws-cdk.core==1.71.0",
     ],
 
     python_requires=">=3.6",
